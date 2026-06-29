@@ -71,7 +71,7 @@ class WorkerThread(QThread):
         login_button = driver.find_element(By.NAME, "commit")
         login_button.click()
         
-        sleep(1)
+        sleep(10)
         #Run test card Black Lotus
         search_box = driver.find_element(
             By.XPATH, "//input[contains(@class, 'react-autosuggest__input')]")
@@ -79,6 +79,13 @@ class WorkerThread(QThread):
         search_box.send_keys(Keys.RETURN)
 
         #adjusts maximum rows on page to 500
+
+        rows_pp_box = driver.find_element(By.ID, "pagination-rows") 
+        rows_pp_box.click()
+        rows_500 = driver.find_element(By.XPATH, "//ul[@id='pagination-menu-list']/li[@data-value='500']")
+        rows_500.is_displayed()
+        rows_500.click()
+
         try:
             rows_pp_box = driver.find_element(By.ID, "pagination-rows") 
             rows_pp_box.click()
@@ -132,7 +139,7 @@ class WorkerThread(QThread):
 
             #checks to make sure buylist is not full
             try:
-                num_in_buylist = int(driver.find_element(By.XPATH, '/html/body/nav/div[1]/ul[1]/li[5]/div[1]/span').text)
+                num_in_buylist = int(driver.find_element(By.XPATH, '/html/body/nav/div[1]/ul[1]/li[6]/div[1]/span').text)
             except:
                 if first_card_added == False:
                     num_in_buylist = 0
