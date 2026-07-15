@@ -52,10 +52,14 @@ class WorkerThread(QThread):
     #code that runs when worker thread is created    
     def run(self):
         #generate ignorelist list
-        with open('ignorelist.txt', 'r') as file:
-            for line in file:
-                line = line.strip().lower()
-                self.ignorelist.append(line)
+        if os.path.exists("ignorelist.txt"):
+            with open("ignorelist.txt", "r") as file:
+                for line in file:
+                    line = line.strip().lower()
+                    self.ignorelist.append(line)
+        else:
+            with open("ignorelist.txt", "w") as file:
+                file.write("")
 
         #opens MTGMate site in chrome
         driver = webdriver.Chrome()
@@ -330,12 +334,13 @@ class MainWindow(QMainWindow):
         self.worker.progress_update.connect(self.progressBar.setValue)
         self.worker.show_full_message.connect(self.max_reached)
         self.worker.start()
-        
+
+os.chdir(os.path.dirname(os.path.abspath(__file__))) # will work when run from outside directory
 if not QApplication.instance():
     app = QApplication(sys.argv)
 else:
     app = QApplication.instance()
-if __name__ == "__main__":    
+if __name__ == "__main__":
     app.setStyle('windowsvista')
     main = MainWindow()
     main.show()
