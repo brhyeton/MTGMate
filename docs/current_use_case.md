@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart LR
-    User(("👤 User"))
+    User(("User"))
 
     subgraph MTGMate Desktop App
         UC1(("Enter MTGMate Details"))
