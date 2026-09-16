@@ -29,9 +29,6 @@ class MainWindow(QMainWindow):
             self.rememberBox.setChecked(True)
 
         # connects buttons
-        self.loginButton.pressed.connect(self.login_mtgmate)
-        self.loadCollectionButton.pressed.connect(self.load_collection)
-        self.findCardsButton.pressed.connect(self.find_cards)
         self.addBuylistButton.pressed.connect(self.add_found_cards)
         self.browseButton.pressed.connect(self.browse_file)
     
@@ -80,15 +77,6 @@ class MainWindow(QMainWindow):
         self.worker.speed_update.connect(self.update_speed)
         self.worker.show_full_message.connect(self.max_reached)
         self.worker.start()
-
-    def find_cards(self):
-        print("Find Cards pressed")
-
-    def login_mtgmate(self):
-        print("Login to MTGMate pressed")
-
-    def load_collection(self):
-        print("Load Collection pressed")
 
     def update_log(self, text):
         self.logBox.setText(

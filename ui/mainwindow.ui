@@ -180,30 +180,6 @@
     </item>
 
     <item>
-     <widget class="QPushButton" name="loginButton">
-      <property name="text">
-       <string>Login to MTGMate</string>
-      </property>
-     </widget>
-    </item>
-
-    <item>
-     <widget class="QPushButton" name="loadCollectionButton">
-      <property name="text">
-       <string>Load Collection</string>
-      </property>
-     </widget>
-    </item>
-
-    <item>
-     <widget class="QPushButton" name="findCardsButton">
-      <property name="text">
-       <string>Find Cards</string>
-      </property>
-     </widget>
-    </item>
-
-    <item>
      <widget class="QPushButton" name="addBuylistButton">
       <property name="text">
        <string>Add Found Cards to Buylist</string>
