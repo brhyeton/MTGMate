@@ -7,6 +7,7 @@ flowchart LR
     subgraph Opening MTGMate Desktop App
         UC1(("Locates MTGMate login cookie"))
         UC2(("Prompts user to login"))
+        UC13(("Saves details to login cookie"))
         UC4(("Sends request to find test card 'Black Lotus'"))
     end
 
@@ -18,6 +19,7 @@ flowchart LR
         UC8(("Adds cards to buylist"))
         UC9(("Returns csv of cards buying"))
         UC10(("Pauses until restarted"))
+        UC14(("Add to ignored.csv"))
     end
 
     subgraph MTGMate Website
@@ -27,7 +29,9 @@ flowchart LR
     end
 
     UC1 -.if fails.-> UC2
+    UC2 --> UC13
     UC1 -.if succeeds.-> UC4
+    UC13 --> UC4
     User --> UC3
     User --> UC5
     UC6 --> UC7
@@ -40,6 +44,8 @@ flowchart LR
     User --> UC10
     User --> UC11
     User --> UC12
+    UC13 --> UC6
+    UC7 -.if on not for sale list.-> UC14
 
 ```
 
