@@ -34,6 +34,7 @@ flowchart LR
     UC13 --> UC4
     User --> UC3
     User --> UC5
+    User --> UC2
     UC6 --> UC7
     UC3 --> UC7
     UC5 --> UC7
