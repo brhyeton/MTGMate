@@ -16,3 +16,10 @@ pyproject.toml
 
 # buylist output
 output.csv
+
+# Saved logins for tate-code (plaintext password / live session cookies)
+mtgmate_credentials.txt
+mtgmate_cookies.json
+
+# tate-code output
+card_results.csv
