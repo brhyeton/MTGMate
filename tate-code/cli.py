@@ -12,10 +12,10 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-from . import buylist
-from .auth import login_and_save_cookies
-from .match import match_owned_cards
-from .wantlist import load_wanted_cards
+import buylist
+from auth import login_and_save_cookies
+from match import match_owned_cards
+from wantlist import load_wanted_cards
 
 
 def run_login(headless: bool) -> None:

@@ -3,8 +3,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from .buylist import BuylistRow
-from .wantlist import WantedCard
+from buylist import BuylistRow
+from wantlist import WantedCard
 
 
 @dataclass

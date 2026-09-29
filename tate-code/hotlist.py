@@ -16,7 +16,7 @@ from typing import List  # noqa: UP035
 
 import requests
 
-from . import config
+import config
 
 
 @dataclass

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-from . import config
+import config
 
 # Plain text file, two lines:
 #   email@example.com
