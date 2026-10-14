@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
-import config
+import helper.config as config
 
 class SessionExpiredError(RuntimeError):
     """The saved cookies no longer log us in; run `login` again."""
@@ -21,7 +21,7 @@ class BuylistRow:
     cash: float        # dollars
     credit: float       # dollars
     wanted: int        # quantity mtgmate wants to buy
-    uuid: str = ""  # the JSON endpoint has a UUID for each card, but we don't need it
+    uuid: str = ""  # mtgmate uuid for the card
 
 def load_session() -> requests.Session:
     """Build a requests.Session carrying the cookies from the saved browser login."""

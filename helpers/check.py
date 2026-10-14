@@ -6,10 +6,10 @@ from pathlib import Path
 
 import requests
 
-import buylist
-from auth import login_and_save_cookies
-from match import match_owned_cards
-from collection import load_selling_cards
+import helper.buylist as buylist
+from helper.auth import login_and_save_cookies
+from helper.match import match_owned_cards
+from helper.collection import load_selling_cards
 
 
 def run_login(headless: bool = False) -> None:
@@ -82,8 +82,9 @@ def run_check(
                 all_matches.append(m)
                 try:
                     buylist.add_item_to_buylist(session, m.uuid, min(m.you_own, m.mtgmate_wants))
-                except requests.exceptions.HTTPError as e:
-                    print(f"HTTP Error details: {e.response.text}")
+                except:
+                    print(f"  Failed to add {m.card_name} to buylist.")
+                    continue
 
     elapsed = time.perf_counter() - start_time
     rate = len(owned) / elapsed if elapsed > 0 else 0

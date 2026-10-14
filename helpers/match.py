@@ -4,10 +4,10 @@ from typing import List
 
 import requests
 
-from buylist import BuylistRow
-from scryfall import correct_card_name
-from collection import SellingCard
-from scryfall import fetch_scryfall_data
+from helper.buylist import BuylistRow
+from helper.scryfall import correct_card_name
+from helper.collection import SellingCard
+from helper.scryfall import fetch_scryfall_data
 
 
 @dataclass

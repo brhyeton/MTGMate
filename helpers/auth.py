@@ -4,7 +4,7 @@ import os
 
 from playwright.sync_api import sync_playwright
 
-import config
+import helper.config as config
 
 # Plain text file, two lines:
 #   email@example.com

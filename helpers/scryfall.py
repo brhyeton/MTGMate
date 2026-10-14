@@ -1,5 +1,5 @@
 import requests
-import config
+import helper.config as config
 import time
 
 def fetch_scryfall_data(session: requests.Session, scryfall_id: str) -> dict:
