@@ -92,8 +92,6 @@ def run_check(
             elapsed = time.perf_counter() - start_time
             rate = len(owned) / elapsed if elapsed > 0 else 0
             speed_update(rate)
-            print(total_checked)
-            print(total_checked/len(owned) * 100)
             progress_update(int(total_checked/len(owned) * 100))
 
     total_credit = sum(

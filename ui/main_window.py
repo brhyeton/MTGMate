@@ -2,6 +2,7 @@ import configparser
 import os
 
 from PyQt6 import uic
+from PyQt6.QtCore import QSettings
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
 from workers.checker_worker import WorkerThread
@@ -21,6 +22,10 @@ class MainWindow(QMainWindow):
         self.runButton.pressed.connect(self.check_buylist)
         self.browseButton.pressed.connect(self.browse_file)
         self.stopButton.pressed.connect(self.stop_check)
+
+        self.settings = QSettings("MTGMateTool", "Buylist Checker")
+        self.load_settings()
+        self.rememberBox.stateChanged.connect(self.handle_remember_toggle)
     
     #for collection file browsing
     def browse_file(self):
@@ -73,3 +78,43 @@ class MainWindow(QMainWindow):
             self.worker.terminate()
             self.worker.wait()
             self.update_log("Check process stopped.")
+
+    def load_settings(self):
+        """Restore saved values if 'Remember' was previously checked."""
+        remember_checked = self.settings.value("rememberBox", False, type=bool)
+        self.rememberBox.setChecked(remember_checked)
+
+        if remember_checked:
+            self.collectionPath.setText(self.settings.value("collectionPath", "", type=str))
+            self.outputPath.setText(self.settings.value("outputPath", "", type=str))
+            self.addAlongsideBox.setChecked(self.settings.value("addAlongsideBox", False, type=bool))
+            
+            # spareBox is a QSpinBox, so load as an integer
+            self.spareBox.setValue(self.settings.value("spareBox", 0, type=int))
+
+    def save_settings(self):
+        """Save settings if rememberBox is checked, otherwise wipe them."""
+        is_remembered = self.rememberBox.isChecked()
+        self.settings.setValue("rememberBox", is_remembered)
+
+        if is_remembered:
+            self.settings.setValue("collectionPath", self.collectionPath.text())
+            self.settings.setValue("outputPath", self.outputPath.text())
+            self.settings.setValue("addAlongsideBox", self.addAlongsideBox.isChecked())
+            
+            # Save the spinbox's numeric value
+            self.settings.setValue("spareBox", self.spareBox.value())
+        else:
+            # Wipe stored data if the user unchecks the box
+            self.settings.remove("collectionPath")
+            self.settings.remove("outputPath")
+            self.settings.remove("addAlongsideBox")
+            self.settings.remove("spareBox")
+
+    def handle_remember_toggle(self, state):
+        self.save_settings()
+
+    def closeEvent(self, event):
+        """Ensure settings are updated right as the app closes."""
+        self.save_settings()
+        event.accept()
