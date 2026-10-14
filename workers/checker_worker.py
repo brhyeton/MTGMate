@@ -14,7 +14,7 @@ from helpers.check import run_check
 
 class WorkerThread(QThread):
     progress_update = pyqtSignal(int)
-    speed_update = pyqtSignal(float)
+    speed_update = pyqtSignal(str)
     log_update = pyqtSignal(str)
     show_full_message = pyqtSignal()
 
@@ -38,7 +38,14 @@ class WorkerThread(QThread):
     def update_log_box(self, text):
         self.log.append(text)
         self.log_update.emit(text)
-        
+
+    def update_progress(self, value):
+        self.progress_update.emit(value)
+
+    def update_speed(self, rate):
+        text = f"{rate:.2f}"
+        self.speed_update.emit(text)
+
     #code for resuming after maximum buylist was reached and emptied
     def resume(self):
         self.mutex.lock()
@@ -48,7 +55,7 @@ class WorkerThread(QThread):
     #code that runs when worker thread is created    
     def run(self):
 
-        run_check(csv_path=Path(self.collection_path), output=Path(self.output_path), debug=False, log_update=self.update_log_box)
+        run_check(csv_path=Path(self.collection_path), output=Path(self.output_path), debug=False, log_update=self.update_log_box, progress_update=self.update_progress, speed_update=self.update_speed)
         
             # if num_in_buylist >= 300:
             #     with open("output.csv", mode="w", newline="") as file:

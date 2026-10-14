@@ -4,8 +4,6 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-import requests
-
 import helpers.buylist as buylist
 from helpers.auth import login_and_save_cookies
 from helpers.match import match_owned_cards
@@ -15,22 +13,25 @@ from helpers.collection import load_selling_cards
 def run_login(headless: bool = False) -> None:
     login_and_save_cookies(headless=headless)
 
-
 def run_check(
     csv_path: Path = Path("wants.csv"),
     output: Path = Path("card_results.csv"),
     debug: bool = False,
     log_update: callable = print,
+    progress_update: callable = print,
+    speed_update: callable = print
 ) -> None:
     start_time = time.perf_counter()
 
-    session = buylist.load_session()
+    session = buylist.load_session(log_update)
 
-    if not buylist.check_logged_in(session):
-        log_update("Saved login has expired or is invalid. Run `run_login()` first.")
-        sys.exit(1)
+    if session is None:
+        return None
 
-    owned = load_selling_cards(csv_path)
+    if not buylist.check_logged_in(session, log_update):
+        return None
+
+    owned = load_selling_cards(csv_path, log_update)
     by_set = defaultdict(list)
     for card in owned:
         by_set[card.set_code].append(card)
@@ -38,6 +39,7 @@ def run_check(
     log_update(f"{len(owned)} card entries across {len(by_set)} sets.")
 
     all_matches = []
+    total_checked = 0
     with open(output, "w", newline="", encoding="utf-8") as out_f:
         writer = csv.writer(out_f)
         writer.writerow(
@@ -62,11 +64,10 @@ def run_check(
             if debug:
                 buylist.debug_dump(rows)
 
-            matches = match_owned_cards(session, cards_in_set, rows)
+            matches = match_owned_cards(session, cards_in_set, rows, log_update)
             for m in matches:
                 log_update(
-                    f"  Found: {m.card_name} [{m.finish}] - ${m.credit:.2f} "
-                    f"(mtgmate wants {m.mtgmate_wants}, you have {m.you_own})"
+                    f"  Found: {m.card_name} [{m.finish}] - ${m.credit:.2f} - MTGMate wants {m.mtgmate_wants}, you have {m.you_own}"
                 )
                 writer.writerow(
                     [
@@ -81,14 +82,20 @@ def run_check(
                 )
                 out_f.flush()
                 all_matches.append(m)
+                
                 try:
                     buylist.add_item_to_buylist(session, m.uuid, min(m.you_own, m.mtgmate_wants))
                 except:
                     log_update(f"  Failed to add {m.card_name} to buylist.")
                     continue
+            total_checked += len(cards_in_set)
+            elapsed = time.perf_counter() - start_time
+            rate = len(owned) / elapsed if elapsed > 0 else 0
+            speed_update(rate)
+            print(total_checked)
+            print(total_checked/len(owned) * 100)
+            progress_update(int(total_checked/len(owned) * 100))
 
-    elapsed = time.perf_counter() - start_time
-    rate = len(owned) / elapsed if elapsed > 0 else 0
     total_credit = sum(
         m.credit * min(m.you_own, m.mtgmate_wants) for m in all_matches
     )
@@ -101,13 +108,3 @@ def run_check(
         f"Processed {len(owned)} card entries ({len(by_set)} sets) in "
         f"{elapsed:.2f}s ({rate:.1f} cards/sec)"
     )
-
-
-# if __name__ == "__main__":
-#     try:
-#         #run_login()
-#         run_check(csv_path=Path("test.csv"), debug=False)
-
-#     except KeyboardInterrupt:
-#         print("\nInterrupted -- partial results (if any) were already saved.")
-#         sys.exit(1)

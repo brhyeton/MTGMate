@@ -23,14 +23,12 @@ class BuylistRow:
     wanted: int        # quantity mtgmate wants to buy
     uuid: str = ""  # mtgmate uuid for the card
 
-def load_session() -> requests.Session:
-    """Build a requests.Session carrying the cookies from the saved browser login."""
+def load_session(log_update: callable) -> requests.Session:
+    log_update("Finding login session.")
     if not config.COOKIE_JAR_PATH.exists():
-        raise SessionExpiredError(
-            f"No saved login found at {config.COOKIE_JAR_PATH}. "
-            f"Run the `login` command first."
-        )
+        return None
 
+    log_update("Creating session using saved cookies.")
     with open(config.COOKIE_JAR_PATH, encoding="utf-8") as f:
         cookies = json.load(f)
 
@@ -48,13 +46,14 @@ def load_session() -> requests.Session:
         session.cookies.set(
             c["name"], c["value"], domain=c.get("domain"), path=c.get("path", "/")
         )
-
+    log_update("Session created.")
+    log_update("Creating dynamic authentication token.")
     search_url = f"{config.BASE_URL}/cards/buylist_search?q=Forest"
     resp = session.get(search_url, timeout=config.REQUEST_TIMEOUT)
     resp.raise_for_status()
 
     if "sign_in" in resp.url or (resp.headers.get("content-type", "").startswith("text/html") and "sign_in" in resp.text):
-        raise SessionExpiredError("Saved cookies have likely expired. Run `login` again.")
+        log_update("Something went wrong when creating authentication token.")
 
     soup = BeautifulSoup(resp.text, 'html.parser')
     token_meta = soup.find("meta", {"name": "csrf-token"})
@@ -69,7 +68,7 @@ def load_session() -> requests.Session:
             raise RuntimeError("Could not find authenticity_token during session load.")
     return session
 
-def check_logged_in(session: requests.Session) -> bool:
+def check_logged_in(session: requests.Session, log_update: callable) -> bool:
     resp = session.get(config.BASE_URL + config.LOGIN_CHECK_PATH,
                        timeout=config.REQUEST_TIMEOUT, allow_redirects=True)
     return "sign_in" not in resp.url

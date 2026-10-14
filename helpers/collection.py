@@ -32,19 +32,17 @@ def _normalize_finish(raw: str) -> str:
     return _FOIL_MAP.get(raw.strip().lower(), raw.strip().title())
 
 
-def load_selling_cards(csv_path: Path) -> List[SellingCard]:
+def load_selling_cards(csv_path: Path, log_update: callable) -> List[SellingCard]:
     selling = []
 
-    session = buylist.load_session()
-
+    log_update(f"Loading selling cards from {csv_path}")
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
         missing = [c for c in REQUIRED_COLUMNS if c not in (reader.fieldnames or [])]
         if missing:
-            raise ValueError(
-                f"CSV is missing expected column(s): {', '.join(missing)}. "
-                f"Found columns: {reader.fieldnames}"
+            log_update(
+                f"CSV is missing expected column(s): {', '.join(missing)}. Found columns: {reader.fieldnames}"
             )
 
         for row in reader:
@@ -70,5 +68,5 @@ def load_selling_cards(csv_path: Path) -> List[SellingCard]:
                     scryfall_id=row.get("Scryfall ID", "").strip(),
                 )
             )
-
+    log_update(f"Loaded {len(selling)} selling cards from {csv_path}")
     return selling

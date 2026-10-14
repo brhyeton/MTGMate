@@ -22,7 +22,7 @@ class Match:
     uuid: str
 
 
-def match_owned_cards(session: requests.Session, owned: List[SellingCard], rows: List[BuylistRow]) -> List[Match]:
+def match_owned_cards(session: requests.Session, owned: List[SellingCard], rows: List[BuylistRow], log_update: callable) -> List[Match]:
     """
     Matches on name + set_code + finish (exact). A nonfoil card you own
     won't be matched against a foil-only buylist entry, even if the price
@@ -49,7 +49,7 @@ def match_owned_cards(session: requests.Session, owned: List[SellingCard], rows:
                 card = correct_card_name(session, card)
                 row = next((r for r in potential_rows if r.name == card.name), None)
             except Exception as e:
-                print(f"Error occurred while correcting card name for {card.name}: {e}")
+                log_update(f"Error occurred while correcting card name for {card.name}: {e}")
                 row = None
 
         if row and row.wanted > 0:
