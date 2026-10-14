@@ -6,9 +6,6 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
 from workers.checker_worker import WorkerThread
 
-#saved details of user for later            
-config = configparser.ConfigParser()
-
 #main UI window code
 class MainWindow(QMainWindow):
 
@@ -20,17 +17,10 @@ class MainWindow(QMainWindow):
         self.resize(600, 450)
         self.setContentsMargins(20,20,20,20)
 
-        #opens config file if it exists
-        if os.path.exists("config.ini"):
-            config.read("config.ini")
-            self.usernameBox.setText(config["Info"]["username"])
-            self.passwordBox.setText(config["Info"]["password"]) 
-            self.collectionPath.setText(config["Info"]["path"]) 
-            self.rememberBox.setChecked(True)
-
         # connects buttons
-        self.addBuylistButton.pressed.connect(self.add_found_cards)
+        self.runButton.pressed.connect(self.check_buylist)
         self.browseButton.pressed.connect(self.browse_file)
+        self.stopButton.pressed.connect(self.stop_check)
     
     #for collection file browsing
     def browse_file(self):
@@ -51,24 +41,16 @@ class MainWindow(QMainWindow):
         if response == QMessageBox.StandardButton.Ok:
             self.worker.resume()
     
-    #runs the checking code when GO is pushed   
-    def add_found_cards(self):
-        username = self.usernameBox.text()
-        password = self.passwordBox.text()
+    #runs the checking code when Run is pushed   
+    def check_buylist(self):
         spare_quantity = self.spareBox.text()
         collection_path = self.collectionPath.text()
-
-        #saves config file if requested
-        config["Info"] = {"username": username, "password": password, "path": collection_path}
-        if self.rememberBox.isChecked():
-            with open("config.ini", "w") as configfile:
-                config.write(configfile)
+        output_path = self.collectionPath.text() + self.outputPath.text()
 
         #creates the worker thread and runs code with details given
         self.worker = WorkerThread()
-        self.worker.details(username,
-                            password,
-                            collection_path,
+        self.worker.details(collection_path,
+                            output_path,
                             spare_quantity,
                             self.logBox,
                             self.itemsPerSec)
@@ -85,3 +67,9 @@ class MainWindow(QMainWindow):
 
     def update_speed(self, speed):
         self.itemsPerSec.setText(f"{speed} items per second.")
+
+    def stop_check(self):
+        if hasattr(self, 'worker') and self.worker.isRunning():
+            self.worker.terminate()
+            self.worker.wait()
+            self.update_log("Check process stopped.")

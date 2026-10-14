@@ -6,10 +6,10 @@ from pathlib import Path
 
 import requests
 
-import helper.buylist as buylist
-from helper.auth import login_and_save_cookies
-from helper.match import match_owned_cards
-from helper.collection import load_selling_cards
+import helpers.buylist as buylist
+from helpers.auth import login_and_save_cookies
+from helpers.match import match_owned_cards
+from helpers.collection import load_selling_cards
 
 
 def run_login(headless: bool = False) -> None:
@@ -20,13 +20,14 @@ def run_check(
     csv_path: Path = Path("wants.csv"),
     output: Path = Path("card_results.csv"),
     debug: bool = False,
+    log_update: callable = print,
 ) -> None:
     start_time = time.perf_counter()
 
     session = buylist.load_session()
 
     if not buylist.check_logged_in(session):
-        print("Saved login has expired or is invalid. Run `run_login()` first.")
+        log_update("Saved login has expired or is invalid. Run `run_login()` first.")
         sys.exit(1)
 
     owned = load_selling_cards(csv_path)
@@ -34,7 +35,7 @@ def run_check(
     for card in owned:
         by_set[card.set_code].append(card)
 
-    print(f"{len(owned)} card entries across {len(by_set)} sets.")
+    log_update(f"{len(owned)} card entries across {len(by_set)} sets.")
 
     all_matches = []
     with open(output, "w", newline="", encoding="utf-8") as out_f:
@@ -51,11 +52,11 @@ def run_check(
         )
 
         for set_code, cards_in_set in sorted(by_set.items()):
-            print(f"\nChecking set: {set_code}")
+            log_update(f"\nChecking set: {set_code}")
             try:
                 rows = buylist.fetch_set_data(session, set_code)
             except Exception as e:
-                print(f"  Failed to fetch: {e}")
+                log_update(f"  Failed to fetch: {e}")
                 continue
 
             if debug:
@@ -63,7 +64,7 @@ def run_check(
 
             matches = match_owned_cards(session, cards_in_set, rows)
             for m in matches:
-                print(
+                log_update(
                     f"  Found: {m.card_name} [{m.finish}] - ${m.credit:.2f} "
                     f"(mtgmate wants {m.mtgmate_wants}, you have {m.you_own})"
                 )
@@ -83,7 +84,7 @@ def run_check(
                 try:
                     buylist.add_item_to_buylist(session, m.uuid, min(m.you_own, m.mtgmate_wants))
                 except:
-                    print(f"  Failed to add {m.card_name} to buylist.")
+                    log_update(f"  Failed to add {m.card_name} to buylist.")
                     continue
 
     elapsed = time.perf_counter() - start_time
@@ -92,21 +93,21 @@ def run_check(
         m.credit * min(m.you_own, m.mtgmate_wants) for m in all_matches
     )
 
-    print(f"\nDone. {len(all_matches)} matches saved to '{output}'")
-    print(
+    log_update(f"\nDone. {len(all_matches)} matches saved to '{output}'")
+    log_update(
         f"Estimated total credit if selling everything matched: ${total_credit:.2f}"
     )
-    print(
+    log_update(
         f"Processed {len(owned)} card entries ({len(by_set)} sets) in "
         f"{elapsed:.2f}s ({rate:.1f} cards/sec)"
     )
 
 
-if __name__ == "__main__":
-    try:
-        #run_login()
-        run_check(csv_path=Path("test.csv"), debug=False)
+# if __name__ == "__main__":
+#     try:
+#         #run_login()
+#         run_check(csv_path=Path("test.csv"), debug=False)
 
-    except KeyboardInterrupt:
-        print("\nInterrupted -- partial results (if any) were already saved.")
-        sys.exit(1)
+#     except KeyboardInterrupt:
+#         print("\nInterrupted -- partial results (if any) were already saved.")
+#         sys.exit(1)

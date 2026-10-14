@@ -37,14 +37,24 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Enter your MTGMate details below, and locate your collection csv file.</string>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
       </property>
+      <widget class="QLineEdit" name="collectionPath">
+       <property name="placeholderText">
+        <string>ManaBox Collection Path</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="browseButton">
+       <property name="text">
+        <string>Browse...</string>
+       </property>
+      </widget>
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="usernameBox">
+     <widget class="QLineEdit" name="outputPath">
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
@@ -52,24 +62,7 @@
        <string/>
       </property>
       <property name="placeholderText">
-       <string>MTGMate Username</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="passwordBox">
-      <property name="echoMode">
-       <enum>QLineEdit::Password</enum>
-      </property>
-      <property name="placeholderText">
-       <string>MTGMate Password</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QCheckBox" name="rememberBox">
-      <property name="text">
-       <string>Remember Me</string>
+       <string>Output .csv File Name</string>
       </property>
      </widget>
     </item>
@@ -90,20 +83,10 @@
      </spacer>
     </item>
     <item>
-     <widget class="QSplitter" name="splitter_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QCheckBox" name="addAlongsideBox">
+      <property name="text">
+       <string>Add to Buylist as cards are checked</string>
       </property>
-      <widget class="QLineEdit" name="collectionPath">
-       <property name="placeholderText">
-        <string>ManaBox Collection Path</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="browseButton">
-       <property name="text">
-        <string>Browse...</string>
-       </property>
-      </widget>
      </widget>
     </item>
     <item>
@@ -163,7 +146,7 @@
          <x>0</x>
          <y>0</y>
          <width>580</width>
-         <height>119</height>
+         <height>127</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -178,11 +161,17 @@
       </widget>
      </widget>
     </item>
-
     <item>
-     <widget class="QPushButton" name="addBuylistButton">
+     <widget class="QPushButton" name="runButton">
       <property name="text">
-       <string>Add Found Cards to Buylist</string>
+       <string>Run</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="stopButton">
+      <property name="text">
+       <string>FORCE STOP</string>
       </property>
      </widget>
     </item>

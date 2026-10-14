@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
-import helper.config as config
+import helpers.config as config
 
 class SessionExpiredError(RuntimeError):
     """The saved cookies no longer log us in; run `login` again."""

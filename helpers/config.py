@@ -14,7 +14,7 @@ LOGIN_CHECK_PATH = "/users/edit"
 
 # Anchored to this folder so the saved login is found no matter which
 # directory the scripts are launched from. Both files are gitignored.
-_HERE = Path(__file__).resolve().parent
+_HERE = Path(__file__).resolve().parent.parent
 COOKIE_JAR_PATH = _HERE / "mtgmate_cookies.json"
 CREDENTIALS_FILE = _HERE / "mtgmate_credentials.txt"
 

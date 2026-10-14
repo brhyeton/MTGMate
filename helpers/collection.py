@@ -3,7 +3,7 @@ import requests
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
-import helper.buylist as buylist
+import helpers.buylist as buylist
 
 NAME_COLUMN = "Name"
 SET_CODE_COLUMN = "Set code"
