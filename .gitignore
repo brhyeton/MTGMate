@@ -16,3 +16,9 @@ pyproject.toml
 
 # buylist output
 output.csv
+card_results.csv
+test.csv
+wantlist.csv
+wants.csv
+mtgmate_cookies.json
+.gitignore
