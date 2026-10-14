@@ -1,9 +1,12 @@
 """Stage 3: match your owned cards against mtgmate's buylist data. Pure logic."""
 
 from dataclasses import dataclass
+import re
 from typing import List
 
-from buylist import BuylistRow
+import requests
+
+from buylist import BuylistRow, fetch_scryfall_data
 from wantlist import WantedCard
 
 
@@ -18,7 +21,7 @@ class Match:
     you_own: int
 
 
-def match_owned_cards(owned: List[WantedCard], rows: List[BuylistRow]) -> List[Match]:
+def match_owned_cards(session: requests.Session, owned: List[WantedCard], rows: List[BuylistRow]) -> List[Match]:
     """
     Matches on name + set_code + finish (exact). A nonfoil card you own
     won't be matched against a foil-only buylist entry, even if the price
@@ -29,7 +32,68 @@ def match_owned_cards(owned: List[WantedCard], rows: List[BuylistRow]) -> List[M
 
     matches = []
     for card in owned:
-        row = index.get((card.name, card.set_code, card.finish))
+
+        #match the correct print type
+
+            #(Borderless ###)
+            #(Full Art ###)
+            #(Promo)
+            #(Extended Art)
+            #(Showcase ###)
+            #(Phyrexian)
+            #(Surge Foil)
+            #(Textured Foil)
+            #(Galaxy Foil)
+            #(Fracture Foil)
+        
+        potential_rows = [
+            r_row for (r_name, r_set, r_finish), r_row in index.items()
+            if r_set == card.set_code 
+            and r_finish == card.finish 
+            and (r_name == card.name or r_name.startswith(card.name + " "))
+        ]
+
+        row = None
+        if len(potential_rows) == 1:
+            row = potential_rows[0]
+        elif len(potential_rows) > 1:
+
+            scryfall_data = (fetch_scryfall_data(session, card.scryfall_id))
+
+            #frame effects etc
+            if scryfall_data['borderless']:
+                card.name = card.name + f" (Borderless {scryfall_data['collector_number']})"
+            if scryfall_data['full_art']:
+                card.name = card.name + f" (Full Art {scryfall_data['collector_number']})"
+            if scryfall_data['retroframe']:
+                card.name = card.name + " (Retro Frame)"
+            if scryfall_data['promo'] == True:
+                card.name = card.name + " (Promo)"
+            if scryfall_data['showcase']:
+                card.name = card.name + f" (Showcase {scryfall_data['collector_number']})"
+            if scryfall_data['extended_art']:
+                card.name = card.name + " (Extended Art)"
+            if scryfall_data['phyrexian']:
+                card.name = card.name + " (Phyrexian)"
+
+            #print effects etc
+            if scryfall_data['textured']:
+                card.name = card.name + " (Textured Foil)"
+            if scryfall_data['galaxy']:
+                card.name = card.name + " (Galaxy Foil)"
+            if scryfall_data['surge']:
+                card.name = card.name + " (Surge Foil)"
+            if scryfall_data['halo']:  
+                card.name = card.name + " (Halo Foil)"
+            if scryfall_data['gilded']:
+                card.name = card.name + " (Gilded Foil)"
+
+            #check to see if there are multiple bracketed parts
+            if card.name.count("(") > 1:
+                card.name = re.sub(r'\)\s*\(', ' - ', card.name)
+
+            row = next((r for r in potential_rows if r.name == card.name), None)
+
         if row and row.wanted > 0:
             matches.append(
                 Match(

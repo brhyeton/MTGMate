@@ -23,3 +23,6 @@ mtgmate_cookies.json
 
 # tate-code output
 card_results.csv
+wants.csv
+test.csv
+.gitignore

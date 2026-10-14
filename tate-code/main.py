@@ -59,7 +59,7 @@ def run_check(
             if debug:
                 buylist.debug_dump(rows)
 
-            matches = match_owned_cards(cards_in_set, rows)
+            matches = match_owned_cards(session, cards_in_set, rows)
             for m in matches:
                 print(
                     f"  Found: {m.card_name} [{m.finish}] - ${m.credit:.2f} "
@@ -96,8 +96,8 @@ def run_check(
 
 if __name__ == "__main__":
     try:
-        run_login()
-        run_check(csv_path=Path("wants.csv"), debug=False)
+        #run_login()
+        run_check(csv_path=Path("test.csv"), debug=False)
 
     except KeyboardInterrupt:
         print("\nInterrupted -- partial results (if any) were already saved.")

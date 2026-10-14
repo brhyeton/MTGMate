@@ -15,9 +15,11 @@ normalized here to match mtgmate's "Nonfoil"/"Foil"/"Etched" finish values.
 """
 
 import csv
+import requests
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
+import buylist
 
 NAME_COLUMN = "Name"
 SET_CODE_COLUMN = "Set code"
@@ -33,13 +35,13 @@ _FOIL_MAP = {
     "etched": "Etched",
 }
 
-
-@dataclass(frozen=True)
+@dataclass()
 class WantedCard:
     name: str
     set_code: str    # lowercased
     finish: str       # "Nonfoil" / "Foil" / "Etched" -- matches mtgmate's values
     owned_quantity: int
+    scryfall_id: str = ""
 
 
 def _normalize_finish(raw: str) -> str:
@@ -48,6 +50,8 @@ def _normalize_finish(raw: str) -> str:
 
 def load_wanted_cards(csv_path: Path) -> List[WantedCard]:
     wanted = []
+
+    session = buylist.load_session()
 
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -79,6 +83,7 @@ def load_wanted_cards(csv_path: Path) -> List[WantedCard]:
                     set_code=set_code,
                     finish=_normalize_finish(foil_raw),
                     owned_quantity=qty,
+                    scryfall_id=row.get("Scryfall ID", "").strip(),
                 )
             )
 

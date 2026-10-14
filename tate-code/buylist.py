@@ -106,6 +106,40 @@ def parse_set_data(data: dict) -> list[BuylistRow]:
             continue  # skip anything with an unexpected shape rather than crash the whole run
     return rows
 
+def fetch_scryfall_data(session: requests.Session, scryfall_id: str) -> dict:
+    """Fetch and parse the JSON data for one card from Scryfall."""
+    url = f"https://api.scryfall.com/cards/{scryfall_id}"
+
+    resp = session.get(url, timeout=config.REQUEST_TIMEOUT)
+    resp.raise_for_status()
+
+    if resp.headers.get("content-type", "").startswith("text/html"):
+        raise RuntimeError("Got HTML instead of JSON data from Scryfall.")
+
+    time.sleep(config.REQUEST_DELAY_SECONDS)
+
+    return parse_scryfall_data(resp.json())
+
+def parse_scryfall_data(data: dict) -> dict:
+    """Extract relevant fields from Scryfall card data."""
+    return {
+        "name": data.get("name"),
+        "set_code": data.get("set"),
+        "collector_number": data.get("collector_number"),
+        
+        "borderless": True if data.get("border_color") == "borderless" else False,
+        "full_art": True if data.get("full_art") else False,
+        "retroframe": True if data.get("frame") == "1993" else False,
+        "promo": True if data.get("promo") else False,
+        "extended_art": True if data.get("frame_effects") and "extendedart" in data.get("frame_effects") else False,
+        "showcase": True if data.get("frame_effects") and "showcase" in data.get("frame_effects") else False,
+        "textured": True if data.get("promo_types") and "textured" in data.get("promo_types") else False,
+        "galaxy": True if data.get("promo_types") and "galaxyfoil" in data.get("promo_types") else False,
+        "surge": True if data.get("promo_types") and "surgefoil" in data.get("promo_types") else False,
+        "halo": True if data.get("promo_types") and "halofoil" in data.get("promo_types") else False,
+        "gilded": True if data.get("promo_types") and "gilded" in data.get("promo_types") else False,
+        "phyrexian": True if data.get("lang") == "ph" else False,
+    }
 
 def debug_dump(rows: list[BuylistRow], limit: int = 15) -> None:
     print(f"Parsed {len(rows)} card entries. First {min(limit, len(rows))}:")
