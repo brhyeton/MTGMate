@@ -91,8 +91,6 @@ class MainWindow(QMainWindow):
             self.collectionPath.setText(self.settings.value("collectionPath", "", type=str))
             self.outputPath.setText(self.settings.value("outputPath", "", type=str))
             self.addAlongsideBox.setChecked(self.settings.value("addAlongsideBox", False, type=bool))
-            
-            # spareBox is a QSpinBox, so load as an integer
             self.spareBox.setValue(self.settings.value("spareBox", 0, type=int))
 
     def save_settings(self):
