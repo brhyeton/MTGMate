@@ -56,17 +56,5 @@ class WorkerThread(QThread):
     def run(self):
 
         run_check(csv_path=Path(self.collection_path), output=Path(self.output_path), debug=False, log_update=self.update_log_box, progress_update=self.update_progress, speed_update=self.update_speed)
-        
-            # if num_in_buylist >= 300:
-            #     with open("output.csv", mode="w", newline="") as file:
-            #         writer = csv.writer(file)
-            #         writer.writerows(buylist)
-            #     self.update_log_box('Buylist maximum reached! Output CSV Created.')
-            #     self.show_full_message.emit()
-            #     self.mutex.lock()
-            #     self.wait_condition.wait(self.mutex)
-            #     self.mutex.unlock()
-            #     buylist = [["Card Name", "Set Name", "Foil?", "Quantity", "Scryfall ID", "Colours"]]
-            #     self.update_log_box('Checking continued.')
 
  

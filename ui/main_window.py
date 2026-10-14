@@ -7,6 +7,9 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
 from workers.checker_worker import WorkerThread
 
+import helpers.config
+from pathlib import Path
+
 #main UI window code
 class MainWindow(QMainWindow):
 
@@ -49,8 +52,8 @@ class MainWindow(QMainWindow):
     #runs the checking code when Run is pushed   
     def check_buylist(self):
         spare_quantity = self.spareBox.text()
-        collection_path = self.collectionPath.text()
-        output_path = self.collectionPath.text() + self.outputPath.text()
+        collection_path = Path(self.collectionPath.text())
+        output_path = helpers.config._HERE / Path(self.outputPath.text())
 
         #creates the worker thread and runs code with details given
         self.worker = WorkerThread()
