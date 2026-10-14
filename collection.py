@@ -1,19 +1,3 @@
-"""
-Stage 1: load and normalize the want-list CSV (ManaBox export format).
-
-Headers expected:
-    Name,Set code,Set name,Collector number,Foil,Rarity,Quantity,
-    ManaBox ID,Scryfall ID,Purchase price,Misprint,Altered,Condition,
-    Language,Purchase price currency
-
-Matched by column name, not position. We use "Set code" (e.g. "CLB") rather
-than "Set name" for matching against mtgmate, since mtgmate's API is keyed
-by set code directly -- no fuzzy name-matching needed.
-
-ManaBox's "Foil" column uses values like "normal", "foil", "etched" --
-normalized here to match mtgmate's "Nonfoil"/"Foil"/"Etched" finish values.
-"""
-
 import csv
 import requests
 from dataclasses import dataclass
@@ -36,7 +20,7 @@ _FOIL_MAP = {
 }
 
 @dataclass()
-class WantedCard:
+class SellingCard:
     name: str
     set_code: str    # lowercased
     finish: str       # "Nonfoil" / "Foil" / "Etched" -- matches mtgmate's values
@@ -48,8 +32,8 @@ def _normalize_finish(raw: str) -> str:
     return _FOIL_MAP.get(raw.strip().lower(), raw.strip().title())
 
 
-def load_wanted_cards(csv_path: Path) -> List[WantedCard]:
-    wanted = []
+def load_selling_cards(csv_path: Path) -> List[SellingCard]:
+    selling = []
 
     session = buylist.load_session()
 
@@ -77,8 +61,8 @@ def load_wanted_cards(csv_path: Path) -> List[WantedCard]:
             except ValueError:
                 qty = 0
 
-            wanted.append(
-                WantedCard(
+            selling.append(
+                SellingCard(
                     name=name,
                     set_code=set_code,
                     finish=_normalize_finish(foil_raw),
@@ -87,4 +71,4 @@ def load_wanted_cards(csv_path: Path) -> List[WantedCard]:
                 )
             )
 
-    return wanted
+    return selling

@@ -4,10 +4,12 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+import requests
+
 import buylist
 from auth import login_and_save_cookies
 from match import match_owned_cards
-from wantlist import load_wanted_cards
+from collection import load_selling_cards
 
 
 def run_login(headless: bool = False) -> None:
@@ -27,7 +29,7 @@ def run_check(
         print("Saved login has expired or is invalid. Run `run_login()` first.")
         sys.exit(1)
 
-    owned = load_wanted_cards(csv_path)
+    owned = load_selling_cards(csv_path)
     by_set = defaultdict(list)
     for card in owned:
         by_set[card.set_code].append(card)
@@ -73,10 +75,15 @@ def run_check(
                         f"{m.credit:.2f}",
                         m.mtgmate_wants,
                         m.you_own,
+                        m.uuid,
                     ]
                 )
                 out_f.flush()
                 all_matches.append(m)
+                try:
+                    buylist.add_item_to_buylist(session, m.uuid, min(m.you_own, m.mtgmate_wants))
+                except requests.exceptions.HTTPError as e:
+                    print(f"HTTP Error details: {e.response.text}")
 
     elapsed = time.perf_counter() - start_time
     rate = len(owned) / elapsed if elapsed > 0 else 0

@@ -1,13 +1,3 @@
-"""
-One-time browser login. Solves the CAPTCHA interactively, then saves the
-resulting session cookies to disk -- after this, `requests` can reuse those
-cookies for every future run, so the browser is only needed here, not for
-the actual scraping.
-
-Run this again whenever `check` starts failing with login-wall redirects,
-i.e. whenever the saved cookies have expired.
-"""
-
 import getpass
 import json
 import os
